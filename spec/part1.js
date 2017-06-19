@@ -2,12 +2,14 @@
   'use strict';
 
   describe('Part I', function() {
-
+    window._ = {};
     describe('identity', function() {
       checkForNativeMethods(function() {
         _.identity(1);
       });
-
+      _.identity = function(val) {
+    return val;
+  };
       it('should return whatever value is passed into it', function() {
         var uniqueObject = {};
         expect(_.identity(1)).to.equal(1);
@@ -21,7 +23,13 @@
       checkForNativeMethods(function() {
         _.first([1,2,3]);
       });
-
+      _.first = function(array, n) {
+        if (n === undefined) {
+          return array[0];
+        } else {
+          return array.slice(0, n);
+        };
+  };
       it('should be able to pull out the first element of an array', function() {
         expect(_.first([1,2,3])).to.equal(1);
       });
@@ -43,7 +51,15 @@
       checkForNativeMethods(function() {
         _.last([1,2,3]);
       });
-
+      _.last = function(array, n) {
+        if (n === 1 || n === undefined) {
+          return array[array.length - 1];
+        } else if (n < array.length) {
+          return array.slice((array.length - n), array.length);
+        } else {
+          return array;
+        };
+  };
       it('should pull the last element from an array', function() {
         expect(_.last([1,2,3])).to.equal(3);
       });
@@ -65,6 +81,20 @@
       checkForNativeMethods(function() {
         _.each([1,2,3,4], function(number) {});
       });
+
+      _.each = function(collection, iterator) {
+        if (Array.isArray(collection)){
+          for (var i = 0; i < collection.length; i++){
+            iterator(collection[i], i, collection);
+          };
+        } else {
+          for (var key in collection) {
+            if (collection.hasOwnProperty(key)) {
+              iterator(collection[key], key, collection);
+            };
+          };
+        };
+      };
 
       it('should be a function', function() {
         expect(_.each).to.be.an.instanceOf(Function);
@@ -221,6 +251,18 @@
         _.indexOf([10, 20, 30, 40], 40)
       });
 
+      _.indexOf = function(array, target){
+    var result = -1;
+
+    _.each(array, function(item, index) {
+      if (item === target && result === -1) {
+        result = index;
+      }
+    });
+
+    return result;
+  };
+
       it('should find 40 in the list', function() {
         var numbers = [10, 20, 30, 40, 50];
 
@@ -252,6 +294,16 @@
         _.filter([1, 2, 3, 4], isEven)
       });
 
+      _.filter = function(collection, test) {
+    var result = [];
+    _.each(collection, function(item){
+      if (test(item)) {
+        result.push(item);
+      }
+    });
+    return result;
+  };
+
       it('should return all even numbers in an array', function() {
         var isEven = function(num) { return num % 2 === 0; };
         var evens = _.filter([1, 2, 3, 4, 5, 6], isEven);
@@ -281,6 +333,16 @@
         _.reject([1, 2, 3, 4, 5, 6], isEven)
       });
 
+      _.reject = function(collection, test) {
+    var result = [];
+    _.each(collection, function(item){
+      if (!test(item)) {
+        result.push(item);
+      }
+    });
+    return result;
+  };
+
       it('should reject all even numbers', function() {
         var isEven = function(num) { return num % 2 === 0; };
         var odds = _.reject([1, 2, 3, 4, 5, 6], isEven);
@@ -308,6 +370,21 @@
       checkForNativeMethods(function() {
         _.uniq([1, 2, 3, 4])
       });
+
+      _.uniq = function(array) {
+    var result = [];
+    var allItems = {};
+    var temp;
+    
+    for (var i = 0; i < array.length; i++) {
+      temp = array[i];
+      if (allItems[temp] == undefined) {
+        result.push(temp);
+        allItems[temp] = 1;
+      };
+    };
+    return result;
+  };
 
       it('should not mutate the input array', function() {
         var input = [1,2,3,4,5];
@@ -367,6 +444,14 @@
         })
       });
 
+      _.map = function(collection, iterator) {
+    var results = [];
+    for (var i = 0; i < collection.length; i++){
+      results[i] = iterator(collection[i]);
+    };
+    return results;
+  };
+
       it('should not mutate the input array', function() {
         var input = [1,2,3,4,5];
         var result = _.map(input, function(num) { /* noop */ });
@@ -422,6 +507,12 @@
           { name: 'curly', age: 50 }
         ];
 
+        _.pluck = function(collection, key) {
+    return _.map(collection, function(item){
+      return item[key];
+    });
+  };
+
         _.pluck(people, 'name');
       });
 
@@ -451,6 +542,20 @@
         var add = function(tally, item) {return tally + item; };
         _.reduce([1, 2, 3, 4], add)
       });
+
+      _.reduce = function(obj, callback, initialValue){
+        var iterator = initialValue;
+        var initializing = iterator === undefined;
+        _.each(obj, function(value, index, iteratedObj){
+          if (initializing) {
+            initializing = false;
+            iterator = value;
+          } else {
+            iterator = callback(iterator, value, index, iteratedObj);
+          };
+        });
+        return iterator;
+      };
 
       it('should be a function', function() {
         expect(_.reduce).to.be.an.instanceOf(Function);

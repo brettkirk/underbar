@@ -8,6 +8,26 @@
         _.contains([4, 5, 6], 2);
       });
 
+      _.contains = function(array, target){
+        var result = false;
+        if (Array.isArray(array)){
+          for (var i = 0; i < array.length; i++){
+            if (array[i] == target){
+              return result = true;
+            };
+          };
+        } else {
+          for (var key in array) {
+            if (array.hasOwnProperty(key)) {
+              if (array[key] == target){
+                return result = true;
+              };
+            };
+          };
+        };
+        return result;
+      };
+
       it('should be a function', function() {
         expect(_.contains).to.be.an.instanceOf(Function);
       });
@@ -72,6 +92,21 @@
         return num % 2 === 0;
       };
 
+      _.every = function(collection, test){
+        var result = true;
+        for (var i = 0; i < collection.length; i++){
+          if (test == undefined) {
+            result = collection[i];
+          } else {
+            result = test(collection[i]);
+          };
+          if (result == false || result == undefined){
+            return false;
+          };
+        };
+        return true;
+      };
+
       checkForNativeMethods(function() {
         _.every([4, 5, 6], _.identity);
       });
@@ -117,6 +152,21 @@
     describe('some', function() {
       var isEven = function(number){
         return number % 2 === 0;
+      };
+
+      _.some = function(collection, test){
+        var result = false;
+        for (var i = 0; i < collection.length; i++){
+          if (test == undefined) {
+            result = collection[i];
+          } else {
+            result = test(collection[i]);
+          };
+          if (result == true || result == 'yes'){
+            return true;
+          };
+        };
+        return false;
       };
 
       checkForNativeMethods(function() {
@@ -168,6 +218,15 @@
         _.extend({ a: 1 },{ b: 1 }, { c: 1 });
       });
 
+      _.extend = function(destination, source){
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              destination[key] = source[key];
+            };
+          };
+        return destination;
+      };
+
       it('returns the first argument', function() {
         var destination = {};
         var source = {};
@@ -217,6 +276,17 @@
       checkForNativeMethods(function() {
         _.defaults({ a: 1 },{ b: 1 }, { c: 1 });
       });
+
+      _.defaults = function(destination, source){
+        for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              if (destination[key] == undefined){
+                destination[key] = source[key];
+              };
+            };
+          };
+        return destination;
+      };
 
       it('should be a function', function() {
         expect(_.defaults).to.be.an.instanceOf(Function);
@@ -357,6 +427,18 @@
         });
       });
 
+      _.once = function(func){
+        var alreadyCalled = false;
+        var result;
+        return function() {
+          if (!alreadyCalled) {
+            result = func.apply(this, arguments);
+            alreadyCalled = true;
+          };
+          return result;
+        };
+      };
+
       it('should be a function', function() {
         expect(_.once).to.be.an.instanceOf(Function);
       });
@@ -417,6 +499,10 @@
         });
       })
 
+      _.memoize = function(func) {
+
+      };
+
       it('should produce the same result as the non-memoized version', function() {
         expect(add(1, 2)).to.equal(3);
         expect(memoAdd(1, 2)).to.equal(3);
@@ -475,6 +561,10 @@
         _.delay(callback, 100);
       })
 
+      _.delay = function(func, wait){
+
+      };
+
       it('should only execute the function after the specified wait time', function() {
         _.delay(callback, 100);
         clock.tick(99);
@@ -498,6 +588,18 @@
       checkForNativeMethods(function() {
         _.shuffle([1, 2, 3, 4])
       })
+
+      _.shuffle = function(array){
+        var temp = [];
+        var shuffled = [];
+        for (var i = 0; i < array.length; i++){
+          temp[i] = array[i];
+        };
+        for (var i = 0; i < array.length; i++){
+          shuffled[i] = temp.pop();
+        };
+        return shuffled;
+      };
 
       it('should not modify the original object', function() {
         var numbers = [4, 5, 6];
