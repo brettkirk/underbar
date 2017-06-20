@@ -274,26 +274,26 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        destination[key] = obj[key];
+    _.each(arguments, function(source) {
+          _.each(source, function(value, key){
+            obj[key] = value;
+          });
+        });
+        return obj;
       };
-    };
-    return destination;
-  };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        if (destination[key] == undefined){
-          destination[key] = obj[key];
-        };
+    _.each(arguments, function(source){
+          _.each(source, function(value, key){
+            if (obj[key] === undefined){
+              obj[key] = value;
+            };
+          });
+        });
+        return obj;
       };
-    };
-    return destination;
-  };
 
 
   /**
@@ -336,7 +336,14 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-
+    var results = {};
+    return function(){
+      var arg = arguments[1];
+      if(!results[arg]){
+        results[arg] = func.apply(this, arguments);
+      };
+      return results[arg];
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -346,7 +353,7 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
-
+    setTimeout(func, wait, arguments[2], arguments[3]);
   };
 
 
